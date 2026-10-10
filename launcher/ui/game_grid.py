@@ -5,7 +5,7 @@ Affiche les cartes de jeux dans une grille scrollable et responsive.
 import customtkinter as ctk
 from . import theme
 from .game_card import GameCard
-from ..config import CARD_WIDTH, CARD_HEIGHT, GAME_GRID_PADDING, GAME_GRID_SPACING
+from ..config import CARD_WIDTH, GAME_GRID_PADDING, GAME_GRID_SPACING
 
 
 class GameGrid(ctk.CTkScrollableFrame):
@@ -48,6 +48,7 @@ class GameGrid(ctk.CTkScrollableFrame):
         self.on_remove = on_remove
         self.cards: list[GameCard] = []
         self._games = games or []
+        self._empty_state = None
 
         # Variables pour le layout en grille
         self._columns = 4
@@ -59,19 +60,37 @@ class GameGrid(ctk.CTkScrollableFrame):
         # Lier le redimensionnement pour un layout responsive
         self.bind("<Configure>", self._on_resize)
 
-    def _build_grid(self):
-        """Construit ou reconstruit la grille complète."""
-        # Nettoyer les cartes existantes
+    def _clear_grid(self):
+        """
+        Détruit les cartes et l'état vide.
+
+        Les deux sont gérés avec grid : utiliser pack pour l'un et grid pour
+        l'autre dans le même conteneur provoque une TclError
+        (« cannot use geometry manager grid ... already has slaves managed by pack »).
+        """
         for card in self.cards:
             card.destroy()
         self.cards.clear()
+
+        self._destroy_empty_state()
+
+    def _destroy_empty_state(self):
+        """Détruit le message « bibliothèque vide » s'il est affiché."""
+        if self._empty_state is not None:
+            if self._empty_state.winfo_exists():
+                self._empty_state.destroy()
+            self._empty_state = None
+
+    def _build_grid(self):
+        """Construit ou reconstruit la grille complète."""
+        self._clear_grid()
 
         if not self._games:
             self._show_empty_state()
             return
 
         # Créer une carte pour chaque jeu
-        for i, game in enumerate(self._games):
+        for game in self._games:
             card = GameCard(
                 self,
                 game=game,
@@ -112,8 +131,12 @@ class GameGrid(ctk.CTkScrollableFrame):
 
     def _show_empty_state(self):
         """Affiche un message quand la bibliothèque est vide."""
-        empty_frame = ctk.CTkFrame(self, fg_color="transparent")
-        empty_frame.pack(fill="both", expand=True, pady=100)
+        # Même gestionnaire de placement que les cartes (grid), sinon le retour
+        # à une liste non vide lève une TclError.
+        self.grid_columnconfigure(0, weight=1)
+        self._empty_state = ctk.CTkFrame(self, fg_color="transparent")
+        empty_frame = self._empty_state
+        empty_frame.grid(row=0, column=0, sticky="nsew", pady=100)
 
         # Emoji
         emoji = ctk.CTkLabel(
@@ -179,10 +202,8 @@ class GameGrid(ctk.CTkScrollableFrame):
         """Ajoute une carte pour un nouveau jeu sans tout reconstruire."""
         self._games.append(game)
 
-        # Supprimer l'état vide s'il existe
-        for widget in self.winfo_children():
-            if isinstance(widget, ctk.CTkFrame) and widget not in self.cards:
-                widget.destroy()
+        # Retirer le message « bibliothèque vide » s'il est affiché
+        self._destroy_empty_state()
 
         card = GameCard(
             self,

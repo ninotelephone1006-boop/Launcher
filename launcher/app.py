@@ -6,7 +6,6 @@ Gère le cycle de vie de l'application.
 import subprocess
 import sys
 from pathlib import Path
-from datetime import datetime
 
 import customtkinter as ctk
 from tkinter import messagebox
@@ -218,7 +217,9 @@ class LauncherApp(ctk.CTk):
 
     def _open_add_dialog(self):
         """Ouvre le dialogue d'ajout de jeu."""
-        dialog = AddGameDialog(
+        # Référence conservée sur l'application : la fenêtre reste en vie
+        # jusqu'à sa fermeture explicite.
+        self.add_dialog = AddGameDialog(
             self,
             on_confirm=self._handle_add_game,
         )
@@ -241,7 +242,7 @@ class LauncherApp(ctk.CTk):
 
     def _open_edit_dialog(self, game: dict):
         """Ouvre le dialogue d'édition pour un jeu."""
-        dialog = EditGameDialog(
+        self.edit_dialog = EditGameDialog(
             self,
             game=game,
             on_confirm=self._handle_edit_game,

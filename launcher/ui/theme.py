@@ -4,12 +4,57 @@ Centralise toutes les couleurs, polices et paramètres de style
 pour un design cohérent et maintenable.
 """
 from ..config import (
+    # Ré-exportés depuis config : source unique de vérité pour les dimensions
+    # partagées entre l'interface et la logique (évite les écarts de définition).
+    CARD_COVER_HEIGHT,
+    CARD_HEIGHT,
+    CARD_WIDTH,
     COLORS,
     FONTS,
-    # Ré-exportés depuis config : source unique de vérité pour la grille.
     GAME_GRID_PADDING,
     GAME_GRID_SPACING,
+    SIDEBAR_WIDTH,
 )
+
+__all__ = [
+    # Ré-exports de config
+    "CARD_COVER_HEIGHT",
+    "CARD_HEIGHT",
+    "CARD_WIDTH",
+    "COLORS",
+    "FONTS",
+    "GAME_GRID_PADDING",
+    "GAME_GRID_SPACING",
+    "SIDEBAR_WIDTH",
+    # Palette
+    "BG_PRIMARY",
+    "BG_SECONDARY",
+    "BG_TERTIARY",
+    "BG_CARD",
+    "BG_HOVER",
+    "BG_SIDEBAR",
+    "ACCENT",
+    "ACCENT_HOVER",
+    "ACCENT_PRESSED",
+    "TEXT_PRIMARY",
+    "TEXT_SECONDARY",
+    "TEXT_MUTED",
+    "BORDER",
+    "DANGER",
+    "DANGER_HOVER",
+    "SUCCESS",
+    "OVERLAY",
+    # Thème CustomTkinter
+    "CTK_THEME",
+    # Dimensions propres à l'interface
+    "SIDEBAR_PADDING",
+    "SIDEBAR_BUTTON_HEIGHT",
+    "SIDEBAR_BUTTON_RADIUS",
+    "CARD_RADIUS",
+    "CARD_BORDER_WIDTH",
+    "HOVER_ANIM_MS",
+    "FADE_ANIM_MS",
+]
 
 # ─── Palette de couleurs (raccourcis pratiques) ────────────────────────────
 
@@ -43,18 +88,14 @@ CTK_THEME = {
 
 # ─── Dimensions des composants ─────────────────────────────────────────────
 
-SIDEBAR_WIDTH = 260
+# SIDEBAR_WIDTH vient de launcher/config.py (source unique de vérité).
 SIDEBAR_PADDING = 16
 SIDEBAR_BUTTON_HEIGHT = 44
 SIDEBAR_BUTTON_RADIUS = 10
 
-CARD_WIDTH = 220
-CARD_HEIGHT = 310
-CARD_COVER_HEIGHT = 280
+# CARD_WIDTH / CARD_HEIGHT / CARD_COVER_HEIGHT viennent de launcher/config.py.
 CARD_RADIUS = 12
 CARD_BORDER_WIDTH = 1
-
-# GAME_GRID_PADDING / GAME_GRID_SPACING : voir launcher/config.py
 
 # ─── Paramètres d'animation ────────────────────────────────────────────────
 
