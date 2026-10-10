@@ -3,7 +3,13 @@ Thème et constantes visuelles du launcher.
 Centralise toutes les couleurs, polices et paramètres de style
 pour un design cohérent et maintenable.
 """
-from ..config import COLORS, FONTS
+from ..config import (
+    COLORS,
+    FONTS,
+    # Ré-exportés depuis config : source unique de vérité pour la grille.
+    GAME_GRID_PADDING,
+    GAME_GRID_SPACING,
+)
 
 # ─── Palette de couleurs (raccourcis pratiques) ────────────────────────────
 
@@ -48,8 +54,7 @@ CARD_COVER_HEIGHT = 280
 CARD_RADIUS = 12
 CARD_BORDER_WIDTH = 1
 
-GAME_GRID_PADDING = 20
-GAME_GRID_SPACING = 20
+# GAME_GRID_PADDING / GAME_GRID_SPACING : voir launcher/config.py
 
 # ─── Paramètres d'animation ────────────────────────────────────────────────
 
