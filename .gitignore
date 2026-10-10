@@ -1,0 +1,31 @@
+# Environnement virtuel
+.venv/
+venv/
+env/
+
+# Fichiers de build PyInstaller
+build/
+dist/
+*.spec.bak
+
+# Données utilisateur (générées au runtime)
+games.json
+covers/
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
