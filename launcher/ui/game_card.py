@@ -3,29 +3,11 @@ Carte de jeu (Game Card).
 Composant visuel individuel représentant un jeu dans la bibliothèque.
 Affiche la pochette, le titre et un bouton "Jouer".
 """
-import os
-from pathlib import Path
-from PIL import Image, ImageTk, ImageFilter
 import customtkinter as ctk
 
 from . import theme
-from ..config import CARD_WIDTH, CARD_HEIGHT, CARD_COVER_HEIGHT, COVER_WIDTH, COVER_HEIGHT
-
-
-def _create_default_cover() -> Image.Image:
-    """
-    Crée une image de couverture par défaut (dégradé violet avec manette).
-    Utilisée quand aucun cover_path n'est défini.
-    """
-    img = Image.new("RGB", (COVER_WIDTH, COVER_HEIGHT), theme.BG_TERTIARY)
-    # Dégradé subtil
-    for y in range(COVER_HEIGHT):
-        r = int(28 + (y / COVER_HEIGHT) * 15)
-        g = int(33 + (y / COVER_HEIGHT) * 10)
-        b = int(45 + (y / COVER_HEIGHT) * 20)
-        for x in range(COVER_WIDTH):
-            img.putpixel((x, y), (r, g, b))
-    return img
+from ..covers import load_cover_image
+from ..config import CARD_WIDTH, CARD_HEIGHT, CARD_COVER_HEIGHT
 
 
 class GameCard(ctk.CTkFrame):
@@ -73,6 +55,7 @@ class GameCard(ctk.CTkFrame):
         self._is_hovered = False
         self._cover_image = None
         self._ctk_image = None
+        self.cover_label = None
 
         # Fixer la taille
         self.pack_propagate(False)
@@ -204,49 +187,29 @@ class GameCard(ctk.CTkFrame):
 
     def _load_cover(self):
         """Charge et affiche l'image de couverture du jeu."""
-        cover_path = self.game.get("cover_path", "")
+        # load_cover_image ne lève jamais d'exception : couverture par défaut
+        # si le fichier est absent ou illisible.
+        img = load_cover_image(self.game.get("cover_path", ""))
 
-        try:
-            if cover_path and Path(cover_path).exists():
-                img = Image.open(cover_path)
-            else:
-                img = _create_default_cover()
+        self._cover_image = img
+        self._ctk_image = ctk.CTkImage(
+            light_image=img,
+            dark_image=img,
+            size=img.size,
+        )
 
-            # Redimensionner pour remplir la zone de couverture
-            img = img.resize(
-                (COVER_WIDTH, COVER_HEIGHT),
-                Image.Resampling.LANCZOS,
-            )
+        # Réutiliser le label existant (édition du jeu) : en créer un nouveau
+        # à chaque mise à jour empilerait les images les unes sur les autres.
+        if self.cover_label is not None and self.cover_label.winfo_exists():
+            self.cover_label.configure(image=self._ctk_image)
+            return
 
-            self._cover_image = img
-            self._ctk_image = ctk.CTkImage(
-                light_image=img,
-                dark_image=img,
-                size=(COVER_WIDTH, COVER_HEIGHT),
-            )
-
-            self.cover_label = ctk.CTkLabel(
-                self.cover_frame,
-                text="",
-                image=self._ctk_image,
-            )
-            self.cover_label.place(relx=0, rely=0, relwidth=1.0, relheight=1.0)
-
-        except Exception as e:
-            # En cas d'erreur, afficher la couverture par défaut
-            img = _create_default_cover()
-            self._cover_image = img
-            self._ctk_image = ctk.CTkImage(
-                light_image=img,
-                dark_image=img,
-                size=(COVER_WIDTH, COVER_HEIGHT),
-            )
-            self.cover_label = ctk.CTkLabel(
-                self.cover_frame,
-                text="",
-                image=self._ctk_image,
-            )
-            self.cover_label.place(relx=0, rely=0, relwidth=1.0, relheight=1.0)
+        self.cover_label = ctk.CTkLabel(
+            self.cover_frame,
+            text="",
+            image=self._ctk_image,
+        )
+        self.cover_label.place(relx=0, rely=0, relwidth=1.0, relheight=1.0)
 
     def _bind_hover_events(self):
         """Attache les événements de survol à la carte et ses enfants."""
@@ -257,7 +220,7 @@ class GameCard(ctk.CTkFrame):
         ]
 
         # Ajouter le cover_label s'il existe
-        if hasattr(self, 'cover_label'):
+        if self.cover_label is not None:
             widgets.append(self.cover_label)
 
         for widget in widgets:

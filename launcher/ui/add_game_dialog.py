@@ -8,7 +8,7 @@ from pathlib import Path
 import customtkinter as ctk
 
 from . import theme
-from ..config import ACCEPTED_EXECUTABLES, ACCEPTED_IMAGES, CARD_WIDTH, COVER_HEIGHT
+from ..config import ACCEPTED_EXECUTABLES, ACCEPTED_IMAGES
 
 
 class AddGameDialog(ctk.CTkToplevel):

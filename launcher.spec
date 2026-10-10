@@ -2,20 +2,26 @@
 """
 Fichier de spécification PyInstaller pour NiLauncher.
 Peut être utilisé avec : pyinstaller launcher.spec
+
+Compatible PyInstaller 6.x (celui installé par requirements.txt).
 """
+from pathlib import Path
 
-import os
-import sys
+# ─── Assets et icône : optionnels ───────────────────────────────────────────
+# Ils ne sont déclarés que s'ils existent réellement : PyInstaller échoue
+# immédiatement sur un chemin absent
+# (« ERROR: Unable to find 'launcher/assets' when adding binary and data files. »).
+ASSETS_DIR = Path('launcher') / 'assets'
+ICON_PATH = ASSETS_DIR / 'icon.ico'
 
-block_cipher = None
+datas = [(str(ASSETS_DIR), 'launcher/assets')] if ASSETS_DIR.is_dir() else []
+icon = str(ICON_PATH) if ICON_PATH.is_file() else None
 
 a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[
-        ('launcher/assets', 'launcher/assets'),
-    ],
+    datas=datas,
     hiddenimports=[
         'PIL._tkinter_finder',
         'PIL._imagingtk',
@@ -37,13 +43,12 @@ a = Analysis(
         'pandas',
         'pytest',
     ],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
     noarchive=False,
 )
 
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+# PyInstaller 6.x : plus d'argument 'cipher' (RemovedCipherFeatureError)
+# et 'a.zipped_data' est toujours vide (les eggs zippés ne sont plus supportés).
+pyz = PYZ(a.pure)
 
 exe = EXE(
     pyz,
@@ -65,5 +70,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='launcher/assets/icon.ico',
+    icon=icon,
 )

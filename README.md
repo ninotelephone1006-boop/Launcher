@@ -38,21 +38,26 @@ Launcher/
 ├── covers/                      # Dossier des couvertures (généré auto.)
 ├── dist/                        # Dossier de sortie (généré par le build)
 │   └── NiLauncher.exe           # Exécutable compilé
-└── launcher/
-    ├── __init__.py
-    ├── app.py                   # Application principale (orchestration)
-    ├── config.py                # Configuration, chemins, constantes
-    ├── game_manager.py          # CRUD des jeux + persistance JSON
-    ├── ui/
-    │   ├── __init__.py
-    │   ├── theme.py             # Thème, couleurs, polices, dimensions
-    │   ├── sidebar.py           # Barre latérale de navigation
-    │   ├── game_card.py         # Carte individuelle de jeu
-    │   ├── game_grid.py         # Grille scrollable de cartes
-    │   ├── add_game_dialog.py   # Dialogue d'ajout de jeu
-    │   └── edit_game_dialog.py  # Dialogue d'édition de jeu
-    └── assets/
-        └── icon.ico             # Icône de l'application (optionnel)
+├── launcher/
+│   ├── __init__.py
+│   ├── app.py                   # Application principale (orchestration)
+│   ├── config.py                # Configuration, chemins, constantes
+│   ├── covers.py                # Couvertures : génération + chargement (Pillow)
+│   ├── game_manager.py          # CRUD des jeux + persistance JSON
+│   ├── assets/
+│   │   └── icon.ico             # Icône de l'application (optionnel)
+│   └── ui/
+│       ├── __init__.py
+│       ├── theme.py             # Thème, couleurs, polices, dimensions
+│       ├── sidebar.py           # Barre latérale de navigation
+│       ├── game_card.py         # Carte individuelle de jeu
+│       ├── game_grid.py         # Grille scrollable de cartes
+│       ├── add_game_dialog.py   # Dialogue d'ajout de jeu
+│       └── edit_game_dialog.py  # Dialogue d'édition de jeu
+└── tests/                       # Tests unitaires (aucun affichage requis)
+    ├── test_covers.py           # Rendu, robustesse et performance des couvertures
+    ├── test_game_manager.py     # CRUD + persistance JSON
+    └── test_theme_exports.py    # Anti-ImportError (noms de config/theme)
 ```
 
 ---
@@ -134,6 +139,17 @@ py -3 -m pip install -r requirements.txt
 Les messages des scripts sont en ASCII pour eviter les caracteres illisibles
 lies a l'encodage de la console Windows. L'icone personnalisee est optionnelle.
 
+### Compilation avec le fichier launcher.spec
+
+```bash
+python -m pip install -r requirements.txt
+python -m PyInstaller --noconfirm launcher.spec
+```
+
+Le dossier `launcher/assets/` et l'icône `launcher/assets/icon.ico` sont
+**optionnels** : le `.spec` ne les déclare que s'ils existent, sinon
+PyInstaller s'arrête sur « Unable to find 'launcher/assets' ».
+
 ### Compilation manuelle avec PyInstaller
 
 ```bash
@@ -193,6 +209,27 @@ Placez votre fichier `.ico` dans `launcher/assets/icon.ico` avant la compilation
 - **Configuration centralisée** : Toutes les constantes dans `config.py`
 - **Thème unifié** : Couleurs et styles définis dans `ui/theme.py`
 - **Callbacks** : Communication entre composants via fonctions de rappel
+
+---
+
+## ✅ Tests et vérifications
+
+Les tests ne touchent pas à l'interface graphique : ils tournent donc aussi bien
+sur Windows que sur Linux/macOS.
+
+```bash
+# 30 tests : couvertures, persistance JSON, noms exportés par config/theme
+python -m unittest discover -s tests -v
+
+# Analyse statique (optionnel, repère les imports morts)
+python -m pyflakes main.py launcher tests
+```
+
+| Test | Ce qu'il verrouille |
+|---|---|
+| `test_theme_exports` | Aucun `ImportError` au démarrage : chaque nom importé de `config` / `theme` existe |
+| `test_game_manager` | Ajout, édition, suppression, horodatage de session, `games.json` corrompu ignoré |
+| `test_covers` | Couverture par défaut identique à l'ancienne version mais bien plus rapide, image absente/illisible gérée |
 
 ---
 

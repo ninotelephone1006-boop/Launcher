@@ -2,7 +2,6 @@
 Configuration globale du launcher.
 Définit les chemins, constantes et paramètres de l'application.
 """
-import os
 import sys
 from pathlib import Path
 
