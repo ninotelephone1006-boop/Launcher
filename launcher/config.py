@@ -52,6 +52,10 @@ CARD_COVER_HEIGHT = 280
 COVER_WIDTH = 220
 COVER_HEIGHT = 280
 
+# Grille de jeux (marges et espacement entre les cartes)
+GAME_GRID_PADDING = 20
+GAME_GRID_SPACING = 20
+
 # Couleurs du thème
 COLORS = {
     "bg_primary": "#0d1117",        # Fond principal très sombre
