@@ -81,7 +81,7 @@ venv\Scripts\activate
 ### Étape 3 : Installer les dépendances
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ### Étape 4 : Lancer en mode développement
@@ -114,14 +114,34 @@ build.bat
 
 Le dossier `dist/NiLauncher/` contiendra l'exécutable et ses dépendances.
 
+### Depannage : `pip` non reconnu
+
+Les scripts utilisent maintenant `python -m pip` et `python -m PyInstaller` :
+les commandes `pip` et `pyinstaller` n'ont plus besoin d'etre dans le `PATH`.
+Ils utilisent Python 3.9+ via `python` (en respectant un environnement virtuel
+active), puis essaient `py -3` si necessaire. Si pip manque, ils tentent de
+l'installer avec `ensurepip --upgrade`.
+
+Si aucun Python compatible n'est trouve, installez Python 3.9+ avec les options
+**pip** et **Add Python to PATH**, puis rouvrez votre terminal. Pour une
+installation manuelle lorsque seule la commande `py` fonctionne :
+
+```bat
+py -3 -m ensurepip --upgrade
+py -3 -m pip install -r requirements.txt
+```
+
+Les messages des scripts sont en ASCII pour eviter les caracteres illisibles
+lies a l'encodage de la console Windows. L'icone personnalisee est optionnelle.
+
 ### Compilation manuelle avec PyInstaller
 
 ```bash
 # Installation de PyInstaller
-pip install pyinstaller
+python -m pip install pyinstaller
 
 # Compilation (fichier unique)
-pyinstaller --noconfirm --onefile --windowed \
+python -m PyInstaller --noconfirm --onefile --windowed \
     --name "NiLauncher" \
     --add-data "launcher;launcher" \
     --hidden-import "PIL._tkinter_finder" \
